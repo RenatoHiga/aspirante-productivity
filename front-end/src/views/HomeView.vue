@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { RouterLink } from 'vue-router'
+</script>
 
 <template>
   <main>
@@ -18,17 +20,18 @@
     </div>
 
     <div class="flex justify-center">
-      <a href="#" class="btn btn-wide btn-accent text-right">Sign in</a>
+      <RouterLink to="/calendar" class="btn btn-wide btn-accent text-right">Sign in</RouterLink>
+      <!-- <a href="#" class="btn btn-wide btn-accent text-right">Sign in</a> -->
+      <!-- <a href="#" class="btn btn-wide btn-accent text-right">Sign in</a> -->
     </div>
 
-    <div class="flex">
-      <a href="#" class="text-center block">Forgot my password</a> |
-      <a href="#">New here? Click here to sign up.</a>
+    <div>
+      <a href="#" class="text-center block">Forgot my password</a>
     </div>
 
-    <div class="block text-center"></div>
-
-    <div class="block text-center"><a href="#">Continue without signing in</a></div>
+    <div>
+      <a href="#" class="text-center block">New here? Click here to sign up.</a>
+    </div>
   </main>
 </template>
 
