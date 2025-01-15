@@ -1,0 +1,12 @@
+FROM php:8.4.2-apache
+
+WORKDIR /var/www/html
+
+COPY . .
+
+RUN a2enmod rewrite headers \
+&& service apache2 restart
+
+CMD [ "php", "artisan", "serve", "--host=0.0.0.0" ]
+
+EXPOSE 8000
