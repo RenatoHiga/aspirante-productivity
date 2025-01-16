@@ -8,6 +8,8 @@ use Illuminate\Support\Str;
 use App\Models\User;
 use Exception;
 
+use App\Http\Controllers\JwtController;
+
 class UserController extends Controller
 {
     public function sign_up(Request $request) {
@@ -33,14 +35,39 @@ class UserController extends Controller
     }
     
     public function login(Request $request) {
+        $default_error = [
+            'status' => 'error',
+            'message' => 'The e-mail or the password are incorrect. Please, try again.'
+        ];
 
         try {
             $user = User::where('email', '=', $request->get('email'))
                 ->get()
             ->first();
+            $user_not_found = empty($user);
+            
+            if ($user_not_found) {
+                return response()->json($default_error);
+            }
 
-            dd(Hash::check($request->get('password'), $user->password));
+            $password_is_incorrect = !Hash::check($request->get('password'), $user->password);
+            if ($password_is_incorrect) {
+                return response()->json($default_error);
+            }
 
+            $expiration = strtotime('+15 minutes');
+
+            $jwt = JwtController::generate_jwt([
+                'name' => $user->name,
+                'email' => $user->email,
+                'exp' => $expiration
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'The authentication has succeded',
+                'jwt' => $jwt
+            ]);
         } catch (Exception $error) {
             return response()->json([
                 'status' => 'error',
