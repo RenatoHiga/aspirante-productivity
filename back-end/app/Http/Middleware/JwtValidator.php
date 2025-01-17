@@ -18,16 +18,30 @@ class JwtValidator
     public function handle(Request $request, Closure $next): Response
     {
         $token = $request->bearerToken();
-        
+
         try {
-            JwtController::decode_jwt($token);
+            $payload = JwtController::decode_jwt($token);
+
+            $token_has_expired = strtotime('now') >= $payload->exp;
+            
+            if (
+                $payload->type != 'access_token'
+                || $token_has_expired
+            ) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User is unauthenticated or token is invalid.',
+                    'url' => 'home'
+                ], 401);
+            }
+
             return $next($request);
         } catch (\Throwable $error) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'User is unauthenticated.',
+                'message' => 'User is unauthenticated or token is invalid.',
                 'url' => 'home'
-            ]);
+            ], 401);
         }
     }
 }

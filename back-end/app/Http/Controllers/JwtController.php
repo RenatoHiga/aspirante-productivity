@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 
 class JwtController extends Controller
 {
-    //
     private static function baseurl64_encode($data) {
         return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($data));
     }
@@ -40,6 +39,6 @@ class JwtController extends Controller
             throw new \Exception('Invalid signature');
         }
 
-        return json_decode($payload, associative: true);
+        return json_decode($payload);
     }
 }

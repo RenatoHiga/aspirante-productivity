@@ -9,6 +9,8 @@ use App\Models\User;
 use Exception;
 
 use App\Http\Controllers\JwtController;
+use App\Http\Controllers\RefreshTokensController;
+use Throwable;
 
 class UserController extends Controller
 {
@@ -55,18 +57,33 @@ class UserController extends Controller
                 return response()->json($default_error);
             }
 
-            $expiration = strtotime('+15 minutes');
+            // $expiration_jwt = strtotime('+15 minutes');
+            $expiration_jwt = strtotime('+30 seconds');
 
             $jwt = JwtController::generate_jwt([
                 'name' => $user->name,
                 'email' => $user->email,
-                'exp' => $expiration
+                'exp' => $expiration_jwt,
+                'type' => 'access_token'
             ]);
+
+            // $expiration_refresh_token = strtotime('+2 days');
+            $expiration_refresh_token = strtotime('+50 seconds');
+
+            $refresh_token = JwtController::generate_jwt([
+                'name' => $user->name,
+                'email' => $user->email,
+                'exp' => $expiration_refresh_token,
+                'type' => 'refresh_token'
+            ]);
+
+            RefreshTokensController::insert($refresh_token);
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'The authentication has succeded',
-                'jwt' => $jwt
+                'access_token' => $jwt,
+                'refresh_token' => $refresh_token
             ]);
         } catch (Exception $error) {
             return response()->json([
@@ -74,5 +91,52 @@ class UserController extends Controller
                 'message' => 'An internal error ocurred.'
             ]);
         }
+    }
+
+    // tokens handlers
+    public function generate_access_token(Request $request) {
+        try {
+            $refresh_token = $request->get('refresh_token');
+
+            $refresh_token_is_revoked = RefreshTokensController::get($refresh_token)->revoked == TRUE;
+            if ($refresh_token_is_revoked) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'The refresh token has been revoked.'
+                ]);
+            }
+
+            $payload = JwtController::decode_jwt($refresh_token);
+            $refresh_token_has_expired = strtotime('now') >= $payload->exp;
+            if (
+                $payload->type != 'refresh_token'
+                || $refresh_token_has_expired
+            ) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'The refresh token is invalid or has expired.'
+                ], 401);
+            }
+
+            $expiration_jwt = strtotime('+30 seconds');
+
+            $access_token = JwtController::generate_jwt([
+                'name' => $payload->name,
+                'email' => $payload->email,
+                'exp' => $expiration_jwt,
+                'type' => 'access_token'
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'access_token' => $access_token
+            ]);
+        } catch (Throwable $error) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An internal error ocurred'
+            ]);
+        }
+
     }
 }
