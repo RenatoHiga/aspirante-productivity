@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TasksController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -13,9 +14,12 @@ Route::prefix('v1')->group(function () {
         Route::post('access_token', [UserController::class, 'generate_access_token']);
     });
 
-    // Route::group('/tasks', function () {
-    //     // Route::post('')
-    // });
+    Route::prefix('tasks')->group(function () {
+        Route::get('/', [TasksController::class, 'get']);
+        Route::post('/', [TasksController::class, 'create']);
+        Route::patch('/', [TasksController::class, 'update']);
+        Route::delete('/', [TasksController::class, 'delete']);
+    });
 
     
 });

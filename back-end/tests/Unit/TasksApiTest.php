@@ -32,7 +32,7 @@ class TasksApiTest extends TestCase
             'user_id' => 1,
             'title' => 'Testing',
             'description' => 'Testing',
-            'creation_date' => date('Y-m-d', strtotime('now')),
+            'target_date' => date('Y-m-d', strtotime('now')),
         ]);
 
         $tasksController = new TasksController();
@@ -47,7 +47,7 @@ class TasksApiTest extends TestCase
             'user_id' => 1,
             'title' => 'Testing 2',
             'description' => 'Testing 2',
-            'creation_date' => date('Y-m-d', strtotime('now')),
+            'target_date' => date('Y-m-d', strtotime('now')),
         ]);
 
         $tasksController = new TasksController();
@@ -57,7 +57,7 @@ class TasksApiTest extends TestCase
             'id' => $result->task->id,
             'title' => 'Updated title',
             'description' => 'Updated description',
-            'creation_date' => date('Y-m-d', strtotime('now'))
+            'target_date' => date('Y-m-d', strtotime('now'))
         ]);
 
         $result = $tasksController->update($updated_task)->getData();
@@ -68,18 +68,20 @@ class TasksApiTest extends TestCase
 
     public function test_delete_task(): void 
     {
-        $task = [
+        $task = new Request([
             'user_id' => 1,
             'title' => 'Testing 3',
             'description' => 'Testing 3',
-            'creation_date' => date('Y-m-d', strtotime('now')),
-        ];
+            'target_date' => date('Y-m-d', strtotime('now')),
+        ]);
 
         $tasksController = new TasksController();
-        $result = json_decode($tasksController->create($task));
+        $result = $tasksController->create($task)->getData();
 
-        $task_id = $result->id;
-        $result = $tasksController->delete($task_id);
+        $task = new Request([
+            'id' => $result->task->id
+        ]);
+        $result = $tasksController->delete($task)->getData();
         
         $this->assertEquals('success', $result->status);
     }

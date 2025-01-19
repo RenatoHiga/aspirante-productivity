@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Tasks extends Model
+class Task extends Model
 {
     protected $primaryKey = 'id';
     
@@ -12,6 +12,6 @@ class Tasks extends Model
         'user_id',
         'title',
         'description',
-        'creation_date'
+        'target_date'
     ];
 }

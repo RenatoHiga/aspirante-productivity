@@ -17,7 +17,7 @@ class UserController extends Controller
     public function sign_up(Request $request) {
         try {
             User::create([
-                'name' => $request->get('name'),
+                'username' => $request->get('username'),
                 'email' => $request->get('email'),
                 'email_verified_at' => now(),
                 'password' => Hash::make($request->get('password')),

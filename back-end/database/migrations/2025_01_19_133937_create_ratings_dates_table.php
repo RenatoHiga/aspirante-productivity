@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tasks', function (Blueprint $table) {
+        Schema::create('ratings_dates', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
-            $table->string('title', 255);
+            $table->enum('rating', ['good', 'average', 'bad']);
             $table->text('description');
-            $table->date('target_date');
+            $table->date('date');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tasks');
+        Schema::dropIfExists('ratings_dates');
     }
 };
